@@ -1,25 +1,28 @@
-# Logging extension for Job Queue for Yii2 based on Beanstalkd
+# OAuth2 Server module for Yii2
 
-This extension provides a package extends the job queue implementation with logging.
+This extension provides [The PHP League: OAuth 2.0 Server](https://oauth2.thephpleague.com/) module for the Yii2 Framework.
+
+[The PHP League: OAuth 2.0 Server](https://oauth2.thephpleague.com/) is a package that makes setting up a OAuth2 server easy.
+
+## Installation
+
+The preferred way to install this extension is through [composer](http://getcomposer.org/download/).
+
+Either run
 
 ```bash
-$ composer require jc-it/yii2-job-queue-logging
+$ composer require jc-it/yii2-oauth2-server
 ```
 
 or add
 
 ```
-"jc-it/yii2-job-queue-logging": "<latest version>"
+"jc-it/yii2-oauth2-server": "^<latest version>"
 ```
 
 to the `require` section of your `composer.json` file.
 
 ## Configuration
 
-- Implement `\JCIT\jobqueue\interfaces\JobHandlerLoggerInterface::class` and register it in your DI
-- Either add it to you JobHandler or extend `\JCIT\jobqueue\jobHandlers\LoggingHandler::class`
-- `\JCIT\jobqueue\events\JobQueueEvent` is triggered on `->put` and `->handle` to enable even more precise logging
-
 ## Credits
-- [Sam Mousa](https://github.com/SamMousa)
 - [Joey Claessen](https://github.com/joester89)
