@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace JCIT\oauth2\repositories;
 
 use JCIT\oauth2\exceptions\FailedSaveException;
-use WolfpackIT\oauth\models\activeRecord\RefreshToken;
+use JCIT\oauth2\models\activeRecord\RefreshToken;
 use yii\db\Expression;
 
 class RefreshTokenRepository

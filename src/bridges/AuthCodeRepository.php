@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace JCIT\oauth2\bridges;
 
+use DateTimeImmutable;
 use JCIT\oauth2\events\AuthCodeCreated;
 use JCIT\oauth2\traits\EventDispatchTrait;
 use JCIT\oauth2\traits\FormatScopesForStorageTrait;
@@ -45,7 +46,7 @@ class AuthCodeRepository implements AuthCodeRepositoryInterface
             'userId' => $authCodeEntity->getUserIdentifier(),
             'clientId' => $authCodeEntity->getClient()->getIdentifier(),
             'scopes' => $this->scopesToArray($authCodeEntity->getScopes()),
-            'expiresAt' => $authCodeEntity->getExpiryDateTime(),
+            'expiresAt' => $authCodeEntity->getExpiryDateTime()->format(DateTimeImmutable::ATOM),
         ]);
 
         $this->dispatch(AuthCodeCreated::EVENT, new AuthCodeCreated(

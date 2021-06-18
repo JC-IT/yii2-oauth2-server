@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace JCIT\oauth2\bridges;
 
+use DateTimeImmutable;
 use JCIT\oauth2\events\RefreshTokenCreated;
 use JCIT\oauth2\traits\EventDispatchTrait;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
@@ -42,7 +43,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
         $this->refreshTokenRepository->create([
             'identifier' => $refreshTokenEntity->getIdentifier(),
             'accessTokenId' => $this->accessTokenRepository->fetch($refreshTokenEntity->getAccessToken()->getIdentifier())->id,
-            'expiresAt' => $refreshTokenEntity->getExpiryDateTime(),
+            'expiresAt' => $refreshTokenEntity->getExpiryDateTime()->format(DateTimeImmutable::ATOM),
         ]);
 
         $this->dispatch(RefreshTokenCreated::EVENT, new RefreshTokenCreated(

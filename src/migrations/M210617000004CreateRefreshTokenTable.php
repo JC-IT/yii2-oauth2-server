@@ -3,17 +3,8 @@ declare(strict_types=1);
 
 namespace JCIT\oauth2\migrations;
 
-use JCIT\oauth2\Module;
-use yii\db\Connection;
-use yii\db\Migration;
-
-class M20210617000003CreateRefreshTokenTable extends Migration
+class M210617000004CreateRefreshTokenTable extends Migration
 {
-    protected function getDb(): Connection
-    {
-        return Module::getInstance()->getDb();
-    }
-
     public function up(): void
     {
         $this->createTable(

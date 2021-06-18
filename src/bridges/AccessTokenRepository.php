@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace JCIT\oauth2\bridges;
 
+use DateTimeImmutable;
 use JCIT\oauth2\events\AccessTokenCreated;
 use JCIT\oauth2\traits\EventDispatchTrait;
 use JCIT\oauth2\traits\FormatScopesForStorageTrait;
@@ -17,6 +18,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 
     public function __construct(
         protected \JCIT\oauth2\repositories\AccessTokenRepository $accessTokenRepository,
+        protected \JCIT\oauth2\repositories\ClientRepository $clientRepository
     ) {
     }
 
@@ -44,9 +46,9 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         $this->accessTokenRepository->create([
             'identifier' => $accessTokenEntity->getIdentifier(),
             'userId' => $accessTokenEntity->getUserIdentifier(),
-            'clientId' => $accessTokenEntity->getClient()->getIdentifier(),
+            'clientId' => $this->clientRepository->fetch($accessTokenEntity->getClient()->getIdentifier())->id,
             'scopes' => $this->scopesToArray($accessTokenEntity->getScopes()),
-            'expiresAt' => $accessTokenEntity->getExpiryDateTime(),
+            'expiresAt' => $accessTokenEntity->getExpiryDateTime()->format(DateTimeImmutable::ATOM),
         ]);
 
         $this->dispatch(AccessTokenCreated::EVENT, new AccessTokenCreated(

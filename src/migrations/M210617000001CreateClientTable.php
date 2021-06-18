@@ -3,17 +3,8 @@ declare(strict_types=1);
 
 namespace JCIT\oauth2\migrations;
 
-use JCIT\oauth2\Module;
-use yii\db\Connection;
-use yii\db\Migration;
-
-class M20210617000004CreateClientTable extends Migration
+class M210617000001CreateClientTable extends Migration
 {
-    protected function getDb(): Connection
-    {
-        return Module::getInstance()->getDb();
-    }
-
     public function up(): void
     {
         $this->createTable(
@@ -23,7 +14,9 @@ class M20210617000004CreateClientTable extends Migration
                 'identifier' => $this->string(100)->notNull(),
                 'name' => $this->string()->notNull(),
                 'secret' => $this->string()->null(),
-                'redirect' => $this->json(),
+                'redirectUris' => $this->json(),
+                'grantTypes' => $this->json(),
+                'scopes' => $this->json(),
                 'passwordClient' => $this->boolean(),
                 'createdAt' => $this->timestamp()->null(),
                 'updatedAt' => $this->timestamp()->null(),

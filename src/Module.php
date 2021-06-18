@@ -4,13 +4,19 @@ declare(strict_types=1);
 namespace JCIT\oauth2;
 
 use DateInterval;
+use Defuse\Crypto\Encoding;
 use Defuse\Crypto\Key;
+use iter\IterFnTest;
 use JCIT\oauth2\bridges\AccessTokenRepository as BridgeAccessTokenRepository;
 use JCIT\oauth2\bridges\AuthCodeRepository as BridgeAuthCodeRepository;
 use JCIT\oauth2\bridges\ClientRepository as BridgeClientRepository;
 use JCIT\oauth2\bridges\RefreshTokenRepository as BridgeRefreshTokenRepository;
+use JCIT\oauth2\bridges\ScopeRepository;
+use JCIT\oauth2\components\ServerRequest;
+use JCIT\oauth2\components\ServerResponse;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\CryptKey;
+use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
 use League\OAuth2\Server\Grant\ImplicitGrant;
@@ -20,10 +26,15 @@ use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
+use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use yii\base\BootstrapInterface;
+use yii\base\InvalidConfigException;
 use yii\db\Connection;
 use yii\di\Instance;
+use yii\helpers\ArrayHelper;
+use yii\rest\UrlRule;
+use yii\web\GroupUrlRule;
 
 class Module extends \yii\base\Module implements BootstrapInterface
 {
@@ -33,6 +44,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
     public array|string|AuthCodeRepositoryInterface $authCodeRepository = BridgeAuthCodeRepository::class;
     public array|string|ClientRepositoryInterface $clientRepository = BridgeClientRepository::class;
     public array|string|RefreshTokenRepositoryInterface $refreshTokenRepository = BridgeRefreshTokenRepository::class;
+    public array|string|ScopeRepositoryInterface $scopeRepository = ScopeRepository::class;
     public array|string|UserRepositoryInterface $userRepository = UserRepositoryInterface::class;
 
     /**
@@ -62,38 +74,55 @@ class Module extends \yii\base\Module implements BootstrapInterface
      */
     public array $scopes = [];
 
+    private ServerRequest $_serverRequest;
+    private ServerResponse $_serverResponse;
     public string $authorizationServerComponent = 'authorizationServer';
     public string $consoleControllerNamespace = 'JCIT\\oauth2\\commands';
     public string $defaultScope = '';
     public bool $enableImplicitGrant = false;
+    public string $identityClass;
+    public string $identityIdentifierColumn = 'identifier';
+    public array $urlManagerRules = [];
     public string $webControllerNamespace = 'JCIT\\oauth2\\controllers';
 
     public function bootstrap($app)
     {
-        if (!isset($this->controllerNamespace)) {
-            if ($app instanceof \yii\console\Application) {
-                $this->controllerNamespace = $this->consoleControllerNamespace;
-            } elseif ($app instanceof \yii\web\Application) {
-                $this->controllerNamespace = $this->webControllerNamespace;
-            }
+        if ($app instanceof \yii\console\Application) {
+            $this->controllerNamespace = $this->consoleControllerNamespace;
+        } elseif ($app instanceof \yii\web\Application) {
+            $this->controllerNamespace = $this->webControllerNamespace;
+
+            $app->getUrlManager()
+                ->addRules((new GroupUrlRule([
+                    'ruleConfig' => [
+                        'class' => UrlRule::class,
+                        'pluralize' => false,
+                        'only' => ['create', 'options']
+                    ],
+                    'rules' => ArrayHelper::merge([
+                        ['controller' => $this->uniqueId . '/authorize'],
+                        ['controller' => $this->uniqueId . '/revoke'],
+                        ['controller' => $this->uniqueId . '/token'],
+                    ], $this->urlManagerRules)
+                ]))->rules, false);
         }
     }
 
     protected function createAuthorizationServer(): AuthorizationServer
     {
         return new AuthorizationServer(
-            $this->get(bridges\ClientRepository::class),
-            $this->get(bridges\AccessTokenRepository::class),
-            $this->get(bridges\ScopeRepository::class),
+            $this->clientRepository,
+            $this->accessTokenRepository,
+            $this->scopeRepository,
             $this->createPrivateCryptKey(),
             $this->createEncryptionKey(),
         );
     }
 
-    protected function createEncryptionKey(): Key
+    protected function createEncryptionKey(): string|Key
     {
-        $key = $this->encryptionKey ?? file_get_contents($this->keyPath . DIRECTORY_SEPARATOR . 'oauth2-encryption.key');
-        return Key::loadFromAsciiSafeString($key);
+        $key = file_get_contents($this->keyPath . DIRECTORY_SEPARATOR . 'oauth2-encryption.key');
+        return $this->encryptionKey ?? Key::loadFromAsciiSafeString($key);
     }
 
     protected function createPrivateCryptKey(): CryptKey
@@ -108,9 +137,34 @@ class Module extends \yii\base\Module implements BootstrapInterface
         return new CryptKey($key, null, false);
     }
 
+    public function getAuthorizationServer(): AuthorizationServer
+    {
+        return $this->get($this->authorizationServerComponent);
+    }
+
     public function getDb(): Connection
     {
         return $this->get($this->db);
+    }
+
+    public function getServerRequest(): ServerRequest
+    {
+        if (!isset($this->_serverRequest)) {
+            $request = $this->module->get('request');
+            $this->_serverRequest = (new ServerRequest($request))
+                ->withParsedBody($request->bodyParams);
+        }
+
+        return $this->_serverRequest;
+    }
+
+    public function getServerResponse()
+    {
+        if (!isset($this->_serverResponse)) {
+            $this->_serverResponse = new ServerResponse();
+        }
+
+        return $this->_serverResponse;
     }
 
     public function hasScope(string $identifier): bool
@@ -123,6 +177,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
         $this->accessTokenRepository = Instance::ensure($this->accessTokenRepository, AccessTokenRepositoryInterface::class);
         $this->authCodeRepository = Instance::ensure($this->authCodeRepository, AuthCodeRepositoryInterface::class);
         $this->clientRepository = Instance::ensure($this->clientRepository, ClientRepositoryInterface::class);
+        $this->scopeRepository = Instance::ensure($this->scopeRepository, ScopeRepositoryInterface::class);
         $this->refreshTokenRepository = Instance::ensure($this->refreshTokenRepository, RefreshTokenRepositoryInterface::class);
         $this->userRepository = Instance::ensure($this->userRepository, UserRepositoryInterface::class);
 
@@ -131,6 +186,10 @@ class Module extends \yii\base\Module implements BootstrapInterface
         /** Test if interval configuration is correct */
         $this->accessTokensExpireIn = $this->accessTokensExpireIn instanceof DateInterval ? $this->accessTokensExpireIn : new DateInterval($this->accessTokensExpireIn);
         $this->refreshTokensExpireIn = $this->refreshTokensExpireIn instanceof DateInterval ? $this->refreshTokensExpireIn : new DateInterval($this->refreshTokensExpireIn);
+
+        if (!is_subclass_of($this->identityClass, UserEntityInterface::class)) {
+            throw new InvalidConfigException('Identity class must implement ' . UserEntityInterface::class);
+        }
 
         $this->registerAuthorizationServer();
 
@@ -145,8 +204,8 @@ class Module extends \yii\base\Module implements BootstrapInterface
 
             // Auth code grant
             $authCodeGrant = new AuthCodeGrant(
-                $this->get(bridges\AuthCodeRepository::class),
-                $this->get(bridges\RefreshTokenRepository::class),
+                $this->authCodeRepository,
+                $this->refreshTokenRepository,
                 new DateInterval('PT10M'),
             );
             $authCodeGrant->setRefreshTokenTTL($this->refreshTokensExpireIn);
@@ -154,15 +213,15 @@ class Module extends \yii\base\Module implements BootstrapInterface
 
             // Refresh token grant
             $refreshTokenGrant = new RefreshTokenGrant(
-                $this->get(bridges\RefreshTokenRepository::class)
+                $this->refreshTokenRepository
             );
             $refreshTokenGrant->setRefreshTokenTTL($this->refreshTokensExpireIn);
             $server->enableGrantType($refreshTokenGrant, $this->accessTokensExpireIn);
 
             // Password grant
             $passwordGrant = new PasswordGrant(
-                $this->get(UserRepositoryInterface::class),
-                $this->get(bridges\RefreshTokenRepository::class)
+                $this->userRepository,
+                $this->refreshTokenRepository
             );
             $passwordGrant->setRefreshTokenTTL($this->refreshTokensExpireIn);
             $server->enableGrantType($passwordGrant, $this->accessTokensExpireIn);

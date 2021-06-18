@@ -11,7 +11,7 @@ class AuthCodeCreated extends Event
 
     public function __construct(
         private string $tokenIdentifier,
-        private string $userIdentifier,
+        private $userIdentifier,
         private string $clientIdentifier,
         $config = []
     ) {

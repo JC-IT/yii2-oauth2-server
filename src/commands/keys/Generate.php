@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace JCIT\oauth2\commands\keys;
 
+use Defuse\Crypto\Encoding;
+use Defuse\Crypto\Key;
 use JCIT\oauth2\Module;
 use yii\base\Action;
 use yii\console\ExitCode;
@@ -39,7 +41,7 @@ class Generate extends Action
             $public = openssl_pkey_get_details($ssl)['key'];
             file_put_contents($module->keyPath . DIRECTORY_SEPARATOR . 'oauth2-public.key', $public);
 
-            file_put_contents($module->keyPath . DIRECTORY_SEPARATOR . 'oauth2-encryption.key', base64_encode(random_bytes(32)));
+            file_put_contents($module->keyPath . DIRECTORY_SEPARATOR . 'oauth2-encryption.key', Key::createNewRandomKey()->saveToAsciiSafeString());
         }
 
         return ExitCode::OK;

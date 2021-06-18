@@ -11,7 +11,7 @@ class AccessTokenCreated extends Event
 
     public function __construct(
         private string $accessTokenIdentifier,
-        private string $userIdentifier,
+        private $userIdentifier,
         private string $clientIdentifier,
         $config = []
     ) {
