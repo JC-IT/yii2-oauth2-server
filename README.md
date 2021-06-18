@@ -23,6 +23,8 @@ or add
 to the `require` section of your `composer.json` file.
 
 ## Configuration
+- module config
+- user repository config (in DI or module)
 
 ## Credits
 - [Joey Claessen](https://github.com/joester89)

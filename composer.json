@@ -1,7 +1,7 @@
 {
     "name": "jc-it/yii2-oauth2-server",
     "description": "The PHP League OAuth2 Server implementation for Yii2",
-    "type": "library",
+    "type": "yii2-extension",
     "license": "MIT",
     "authors": [
         {

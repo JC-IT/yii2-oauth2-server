@@ -5,10 +5,10 @@ namespace JCIT\oauth2;
 
 use DateInterval;
 use Defuse\Crypto\Key;
-use JCIT\oauth2\repositories\AccessTokenRepository;
-use JCIT\oauth2\repositories\AuthCodeRepository;
-use JCIT\oauth2\repositories\ClientRepository;
-use JCIT\oauth2\repositories\RefreshTokenRepository;
+use JCIT\oauth2\bridges\AccessTokenRepository as BridgeAccessTokenRepository;
+use JCIT\oauth2\bridges\AuthCodeRepository as BridgeAuthCodeRepository;
+use JCIT\oauth2\bridges\ClientRepository as BridgeClientRepository;
+use JCIT\oauth2\bridges\RefreshTokenRepository as BridgeRefreshTokenRepository;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
@@ -21,7 +21,6 @@ use League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
-use yii\base\Application;
 use yii\base\BootstrapInterface;
 use yii\db\Connection;
 use yii\di\Instance;
@@ -30,10 +29,10 @@ class Module extends \yii\base\Module implements BootstrapInterface
 {
     public string|array|Connection $db = 'db';
 
-    public array|string|AccessTokenRepositoryInterface $accessTokenRepository = AccessTokenRepository::class;
-    public array|string|AuthCodeRepositoryInterface $authCodeRepository = AuthCodeRepository::class;
-    public array|string|ClientRepositoryInterface $clientRepository = ClientRepository::class;
-    public array|string|RefreshTokenRepositoryInterface $refreshTokenRepository = RefreshTokenRepository::class;
+    public array|string|AccessTokenRepositoryInterface $accessTokenRepository = BridgeAccessTokenRepository::class;
+    public array|string|AuthCodeRepositoryInterface $authCodeRepository = BridgeAuthCodeRepository::class;
+    public array|string|ClientRepositoryInterface $clientRepository = BridgeClientRepository::class;
+    public array|string|RefreshTokenRepositoryInterface $refreshTokenRepository = BridgeRefreshTokenRepository::class;
     public array|string|UserRepositoryInterface $userRepository = UserRepositoryInterface::class;
 
     /**
@@ -53,7 +52,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
      *
      * @var string
      */
-    public string|DateInterval $accessTokensExpireIn = 'P6H';
+    public string|DateInterval $accessTokensExpireIn = 'PT6H';
     public string|DateInterval $refreshTokensExpireIn = 'P30D';
 
     /**
@@ -121,12 +120,10 @@ class Module extends \yii\base\Module implements BootstrapInterface
 
     public function init()
     {
-        $this->accessTokenRepository = Instance::ensure($this->accessTokenRepository,
-            AccessTokenRepositoryInterface::class);
+        $this->accessTokenRepository = Instance::ensure($this->accessTokenRepository, AccessTokenRepositoryInterface::class);
         $this->authCodeRepository = Instance::ensure($this->authCodeRepository, AuthCodeRepositoryInterface::class);
         $this->clientRepository = Instance::ensure($this->clientRepository, ClientRepositoryInterface::class);
-        $this->refreshTokenRepository = Instance::ensure($this->refreshTokenRepository,
-            RefreshTokenRepositoryInterface::class);
+        $this->refreshTokenRepository = Instance::ensure($this->refreshTokenRepository, RefreshTokenRepositoryInterface::class);
         $this->userRepository = Instance::ensure($this->userRepository, UserRepositoryInterface::class);
 
         $this->keyPath = !empty($this->keyPath) ? \Yii::getAlias(rtrim($this->keyPath, DIRECTORY_SEPARATOR)) : $this->keyPath;
