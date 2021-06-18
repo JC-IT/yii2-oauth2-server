@@ -24,12 +24,12 @@
     ],
     "autoload": {
         "psr-4": {
-            "JCIT\\oauth2\\": ["src/"]
+            "JCIT\\oauth2\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "JCIT\\oauth2\\tests\\": ["tests/"]
+            "JCIT\\oauth2\\tests\\": "tests/"
         }
     },
     "scripts": {
