@@ -29,7 +29,7 @@ use yii\validators\UniqueValidator;
  * @property int $userId [int]
  * @property int $clientId [int]
  * @property string $name [varchar(255)]
- * @property string $scopes [json]
+ * @property array $scopes [json]
  * @property int $createdAt [timestamp]
  * @property int $updatedAt [timestamp]
  * @property int $expiresAt [timestamp]

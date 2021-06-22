@@ -26,14 +26,15 @@ use yii\validators\UrlValidator;
  * @property string $identifier [varchar(100)]
  * @property string $name [varchar(255)]
  * @property string $secret [varchar(255)]
- * @property string $redirectUris [json]
- * @property string $grantTypes [json]
- * @property string $scopes [json]
+ * @property array $redirectUris [json]
+ * @property array $grantTypes [json]
+ * @property array $scopes [json]
  * @property bool $passwordClient [tinyint(1)]
  * @property int $createdAt [timestamp]
  * @property int $updatedAt [timestamp]
  * @property int $revokedAt [timestamp]
  *
+ * @property-read bool $isConfidential
  * @property-read bool $isRevoked
  */
 class Client extends ActiveRecord
@@ -60,7 +61,7 @@ class Client extends ActiveRecord
 
     public function getIsConfidential(): bool
     {
-        return is_null($this->secret);
+        return !is_null($this->secret);
     }
 
     public function getIsRevoked(): bool
@@ -71,9 +72,10 @@ class Client extends ActiveRecord
     public function grantOptions(): array
     {
         return [
-            'client_credentials' => \Yii::t('oauth2', 'Client credentials'),
-            'password' => \Yii::t('oauth2', 'Password'),
             'authorization_code' => \Yii::t('oauth2', 'Authorization code'),
+            'client_credentials' => \Yii::t('oauth2', 'Client credentials'),
+            'implicit' => \Yii::t('oauth2', 'Implicit'),
+            'password' => \Yii::t('oauth2', 'Password'),
             'refresh_token' => \Yii::t('oauth2', 'Refresh token'),
         ];
     }

@@ -17,6 +17,7 @@ class AuthCodeRepository implements AuthCodeRepositoryInterface
 
     public function __construct(
         protected \JCIT\oauth2\repositories\AuthCodeRepository $authCodeRepository,
+        protected \JCIT\oauth2\repositories\ClientRepository $clientRepository,
     ) {
     }
 
@@ -44,7 +45,7 @@ class AuthCodeRepository implements AuthCodeRepositoryInterface
         $this->authCodeRepository->create([
             'identifier' => $authCodeEntity->getIdentifier(),
             'userId' => $authCodeEntity->getUserIdentifier(),
-            'clientId' => $authCodeEntity->getClient()->getIdentifier(),
+            'clientId' => $this->clientRepository->fetch($authCodeEntity->getClient()->getIdentifier())->id,
             'scopes' => $this->scopesToArray($authCodeEntity->getScopes()),
             'expiresAt' => $authCodeEntity->getExpiryDateTime()->format(DateTimeImmutable::ATOM),
         ]);

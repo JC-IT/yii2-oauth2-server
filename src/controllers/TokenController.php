@@ -16,12 +16,8 @@ class TokenController extends ActiveController
     public function actions(): array
     {
         return [
-            'create' => [
-                'class' => Create::class,
-            ],
-            'options' => [
-                'class' => OptionsAction::class
-            ]
+            'create' => Create::class,
+            'options' => OptionsAction::class,
         ];
     }
 

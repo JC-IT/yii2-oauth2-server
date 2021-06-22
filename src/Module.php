@@ -28,6 +28,7 @@ use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
+use yii\base\BaseObject;
 use yii\base\BootstrapInterface;
 use yii\base\InvalidConfigException;
 use yii\db\Connection;
@@ -35,6 +36,7 @@ use yii\di\Instance;
 use yii\helpers\ArrayHelper;
 use yii\rest\UrlRule;
 use yii\web\GroupUrlRule;
+use yii\web\Request;
 
 class Module extends \yii\base\Module implements BootstrapInterface
 {
@@ -93,18 +95,23 @@ class Module extends \yii\base\Module implements BootstrapInterface
             $this->controllerNamespace = $this->webControllerNamespace;
 
             $app->getUrlManager()
-                ->addRules((new GroupUrlRule([
+                ->addRules(ArrayHelper::merge(
+                    (new GroupUrlRule([
                     'ruleConfig' => [
                         'class' => UrlRule::class,
                         'pluralize' => false,
                         'only' => ['create', 'options']
                     ],
                     'rules' => ArrayHelper::merge([
-                        ['controller' => $this->uniqueId . '/authorize'],
-                        ['controller' => $this->uniqueId . '/revoke'],
-                        ['controller' => $this->uniqueId . '/token'],
+                        ['controller' => [
+                            $this->uniqueId . '/token',
+                            $this->uniqueId . '/access-token' => $this->uniqueId . '/token'
+                        ]],
                     ], $this->urlManagerRules)
-                ]))->rules, false);
+                    ]))->rules,
+                ['GET,POST ' . $this->uniqueId . '/authorize' => $this->uniqueId . '/authorize/authorize']
+                ), true)
+            ;
         }
     }
 
@@ -131,7 +138,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
         return new CryptKey($key, null, false);
     }
 
-    protected function createPublicCryptKey(): CryptKey
+    public function createPublicCryptKey(): CryptKey
     {
         $key = $this->publicKey ?? 'file://' . $this->keyPath . DIRECTORY_SEPARATOR . 'oauth2-public.key';
         return new CryptKey($key, null, false);
@@ -150,9 +157,12 @@ class Module extends \yii\base\Module implements BootstrapInterface
     public function getServerRequest(): ServerRequest
     {
         if (!isset($this->_serverRequest)) {
+            /** @var Request $request */
             $request = $this->module->get('request');
             $this->_serverRequest = (new ServerRequest($request))
-                ->withParsedBody($request->bodyParams);
+                ->withParsedBody($request->bodyParams)
+                ->withQueryParams($request->queryParams)
+            ;
         }
 
         return $this->_serverRequest;

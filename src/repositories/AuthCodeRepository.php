@@ -29,7 +29,7 @@ class AuthCodeRepository
     {
         $model = $this->fetch($identifier);
 
-        return !$model || is_null($model->revokedAt);
+        return !$model || !is_null($model->revokedAt);
     }
 
     public function revoke(string $identifier): void

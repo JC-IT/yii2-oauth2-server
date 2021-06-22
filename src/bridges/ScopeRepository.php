@@ -10,13 +10,16 @@ use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 
 class ScopeRepository implements ScopeRepositoryInterface
 {
+    public function __construct(
+        protected \JCIT\oauth2\repositories\ScopeRepository $scopeRepository
+    ) {
+    }
+
     public function getScopeEntityByIdentifier($identifier): ?ScopeEntityInterface
     {
-        if (Module::getInstance()->hasScope($identifier)) {
-            return new Scope($identifier);
-        }
+        $scope = $this->scopeRepository->fetch(Module::getInstance(), $identifier);
 
-        return null;
+        return $scope ? new Scope($scope->getIdentifier()) : null;
     }
 
     public function finalizeScopes(

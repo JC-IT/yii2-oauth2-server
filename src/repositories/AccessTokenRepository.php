@@ -5,10 +5,17 @@ namespace JCIT\oauth2\repositories;
 
 use JCIT\oauth2\exceptions\FailedSaveException;
 use JCIT\oauth2\models\activeRecord\AccessToken;
+use League\OAuth2\Server\Entities\ClientEntityInterface;
+use League\OAuth2\Server\Entities\UserEntityInterface;
 use yii\db\Expression;
 
 class AccessTokenRepository
 {
+    public function __construct(
+        protected ClientRepository $clientRepository
+    ) {
+    }
+
     public function create($attributes): AccessToken
     {
         $model = new AccessToken($attributes);
@@ -23,6 +30,19 @@ class AccessTokenRepository
     public function fetch(string $identifier): ?AccessToken
     {
         return AccessToken::findOne(['identifier' => $identifier]);
+    }
+
+    public function fetchValidForUser(UserEntityInterface $user, ClientEntityInterface $client): ?AccessToken
+    {
+        return AccessToken::find()
+            ->andWhere([
+                'userId' => $user->getIdentifier(),
+                'clientId' => $this->clientRepository->fetch($client->getIdentifier())?->id,
+            ])
+            ->notRevoked()
+            ->notExpired()
+            ->orderBy(['expiresAt' => SORT_DESC])
+            ->one();
     }
 
     public function isRevoked(string $identifier): bool
