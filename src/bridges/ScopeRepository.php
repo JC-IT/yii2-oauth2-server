@@ -22,22 +22,27 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $scope ? new Scope($scope->getIdentifier()) : null;
     }
 
+    /**
+     * @param Scope[] $scopes
+     * @return Scope[]
+     */
     public function finalizeScopes(
         array $scopes,
         $grantType,
         ClientEntityInterface $clientEntity,
         $userIdentifier = null
     ) {
+        \Yii::debug($scopes);
         if (!in_array($grantType, ['password', 'client_credentials'])) {
             foreach ($scopes as $key => $scope) {
-                if (trim($scope) === '*') {
+                if ($scope->getIdentifier() === '*') {
                     unset($scopes[$key]);
                 }
             }
         }
 
         foreach ($scopes as $key => $scope) {
-            if (!Module::getInstance()->hasScope($scope)) {
+            if (!Module::getInstance()->hasScope($scope->getIdentifier())) {
                 unset($scopes[$key]);
             }
         }

@@ -23,6 +23,14 @@ class Authorize extends Model
         parent::__construct($config);
     }
 
+    public function attributeLabels(): array
+    {
+        return [
+            'client' => \Yii::t('JCIT.oauth2', 'Client to authorize'),
+            'scopes' => \Yii::t('JCIT.oauth2', 'Scopes to authorize'),
+        ];
+    }
+
     public function getClient(): ClientEntityInterface
     {
         return $this->authorizationRequest->getClient();

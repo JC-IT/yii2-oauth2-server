@@ -96,6 +96,7 @@ class Authorize extends Action
 
             if ($request->isPost && $model->load($request->bodyParams) && $model->validate()) {
                 $session->remove(self::SESSION_AUTH_REQUEST);
+                $session->remove(self::SESSION_AUTH_TOKEN);
                 if ($model->accept) {
                     return $this->approveRequest($module, $authRequest, $user->identity, $response);
                 } else {
@@ -119,7 +120,7 @@ class Authorize extends Action
             $session->set(self::SESSION_AUTH_REQUEST, $authRequest);
             $session->set(self::SESSION_AUTH_TOKEN, $authToken = $security->generateRandomString());
 
-            return $this->render(
+            return $this->controller->render(
                 $this->viewFile,
                 [
                     'authToken' => $authToken,

@@ -25,7 +25,7 @@ class M210617000003CreateAccessTokenTable extends Migration
 
         $this->createIndex('i-access_token-identifier', '{{%access_token}}', ['identifier']);
         $this->createIndex('i-access_token-userId', '{{%access_token}}', ['userId']);
-        $this->addForeignKey('fk-access_token-clientId-client-id', '{{%access_token}}', ['clientId'], '{{%client}}', ['id']);
+        $this->addForeignKey('fk-access_token-clientId-client-id', '{{%access_token}}', ['clientId'], '{{%client}}', ['id'], 'CASCADE', 'CASCADE');
     }
 
     public function down(): void

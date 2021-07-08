@@ -11,6 +11,8 @@ use yii\db\Expression;
 
 class AccessTokenRepository
 {
+    public string $accessTokenClass = AccessToken::class;
+
     public function __construct(
         protected ClientRepository $clientRepository
     ) {
@@ -18,7 +20,7 @@ class AccessTokenRepository
 
     public function create($attributes): AccessToken
     {
-        $model = new AccessToken($attributes);
+        $model = new ($this->accessTokenClass)($attributes);
 
         if (!$model->save()) {
             throw new FailedSaveException($model->errors);
@@ -29,12 +31,12 @@ class AccessTokenRepository
 
     public function fetch(string $identifier): ?AccessToken
     {
-        return AccessToken::findOne(['identifier' => $identifier]);
+        return $this->accessTokenClass::findOne(['identifier' => $identifier]);
     }
 
     public function fetchValidForUser(UserEntityInterface $user, ClientEntityInterface $client): ?AccessToken
     {
-        return AccessToken::find()
+        return $this->accessTokenClass::find()
             ->andWhere([
                 'userId' => $user->getIdentifier(),
                 'clientId' => $this->clientRepository->fetch($client->getIdentifier())?->id,
@@ -49,11 +51,11 @@ class AccessTokenRepository
     {
         $model = $this->fetch($identifier);
 
-        return !$model || is_null($model->revokedAt);
+        return !$model || !is_null($model->revokedAt);
     }
 
     public function revoke(string $identifier): void
     {
-        AccessToken::updateAll(['revokedAt' => new Expression('NOW()')], ['identifier' => $identifier]);
+        $this->accessTokenClass::updateAll(['revokedAt' => new Expression('NOW()')], ['identifier' => $identifier]);
     }
 }

@@ -24,7 +24,7 @@ class M210617000002CreateAuthCodeTable extends Migration
 
         $this->createIndex('i-auth_code-identifier', '{{%auth_code}}', ['identifier']);
         $this->createIndex('i-auth_code-userId', '{{%auth_code}}', ['userId']);
-        $this->addForeignKey('fk-auth_code-clientId-client-id', '{{%auth_code}}', ['clientId'], '{{%client}}', ['id']);
+        $this->addForeignKey('fk-auth_code-clientId-client-id', '{{%auth_code}}', ['clientId'], '{{%client}}', ['id'], 'CASCADE', 'CASCADE');
     }
 
     public function down(): void

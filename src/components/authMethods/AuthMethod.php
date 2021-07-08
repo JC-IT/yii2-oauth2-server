@@ -10,6 +10,7 @@ use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
+use yii\web\Request;
 
 abstract class AuthMethod extends \yii\filters\auth\AuthMethod
 {
@@ -46,5 +47,19 @@ abstract class AuthMethod extends \yii\filters\auth\AuthMethod
     public function handleFailure($response)
     {
         throw OAuthServerException::accessDenied();
+    }
+
+    protected function tokenTypeExists(Request &$request): bool
+    {
+        $authHeader = $request->getHeaders()->get('Authorization');
+
+        if (
+            $authHeader !== null && $this->getTokenType() !== null
+            && preg_match('/^' . $this->getTokenType() . '\s+(.*?)$/', $authHeader, $matches)
+        ) {
+            return true;
+        }
+
+        return false;
     }
 }

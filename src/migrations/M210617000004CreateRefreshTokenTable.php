@@ -21,7 +21,7 @@ class M210617000004CreateRefreshTokenTable extends Migration
         );
 
         $this->createIndex('i-refresh_token-identifier', '{{%refresh_token}}', ['identifier']);
-        $this->addForeignKey('fk-refresh_token-accessTokenId-access_token-id', '{{%refresh_token}}', ['accessTokenId'], '{{%access_token}}', ['id']);
+        $this->addForeignKey('fk-refresh_token-accessTokenId-access_token-id', '{{%refresh_token}}', ['accessTokenId'], '{{%access_token}}', ['id'], 'CASCADE', 'CASCADE');
     }
 
     public function down(): void

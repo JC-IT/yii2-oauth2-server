@@ -34,6 +34,7 @@ use yii\base\InvalidConfigException;
 use yii\db\Connection;
 use yii\di\Instance;
 use yii\helpers\ArrayHelper;
+use yii\i18n\PhpMessageSource;
 use yii\rest\UrlRule;
 use yii\web\GroupUrlRule;
 use yii\web\Request;
@@ -201,6 +202,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
             throw new InvalidConfigException('Identity class must implement ' . UserEntityInterface::class);
         }
 
+        $this->registerTranslations();
         $this->registerAuthorizationServer();
 
         parent::init();
@@ -248,5 +250,16 @@ class Module extends \yii\base\Module implements BootstrapInterface
 
             return $server;
         });
+    }
+
+    protected function registerTranslations(): void
+    {
+        $this->module->i18n->translations['JCIT.oauth2'] =
+            $this->module->i18n->translations['JCIT.oauth2']
+            ?? [
+                'class' => PhpMessageSource::class,
+                'sourceLanguage' => 'en-US',
+                'basePath' => '@vendor/jc-it/yii2-oauth2-server/i18n'
+            ];
     }
 }
