@@ -107,9 +107,11 @@ class Authorize extends Action
             $scopesToApprove = $this->scopeRepository->resolveForAuthorizationRequest($module, $authRequest);
 
             $accessToken = $this->accessTokenRepository->fetchValidForUser($user->identity, $authRequest->getClient());
-            foreach ($scopesToApprove as $key => $scope) {
-                if (in_array($scope->getIdentifier(), $accessToken->scopes)) {
-                    unset($scopesToApprove[$key]);
+            if ($accessToken) {
+                foreach ($scopesToApprove as $key => $scope) {
+                    if (in_array($scope->getIdentifier(), $accessToken->scopes)) {
+                        unset($scopesToApprove[$key]);
+                    }
                 }
             }
 

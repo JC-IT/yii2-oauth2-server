@@ -46,7 +46,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         $this->accessTokenRepository->create([
             'identifier' => $accessTokenEntity->getIdentifier(),
             'userId' => $accessTokenEntity->getUserIdentifier(),
-            'clientId' => $this->clientRepository->fetch($accessTokenEntity->getClient()->getIdentifier())->id,
+            'clientId' => $this->clientRepository->fetchByIdentifier($accessTokenEntity->getClient()->getIdentifier())->id,
             'scopes' => $this->scopesToArray($accessTokenEntity->getScopes()),
             'expiresAt' => $accessTokenEntity->getExpiryDateTime()->format(DateTimeImmutable::ATOM),
         ]);

@@ -39,7 +39,7 @@ class AccessTokenRepository
         return $this->accessTokenClass::find()
             ->andWhere([
                 'userId' => $user->getIdentifier(),
-                'clientId' => $this->clientRepository->fetch($client->getIdentifier())?->id,
+                'clientId' => $this->clientRepository->fetchByIdentifier($client->getIdentifier())?->id,
             ])
             ->notRevoked()
             ->notExpired()

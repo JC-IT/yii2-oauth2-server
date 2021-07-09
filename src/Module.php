@@ -85,6 +85,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
     public bool $enableImplicitGrant = false;
     public string $identityClass;
     public string $identityIdentifierColumn = 'identifier';
+    public string|null $manageClientsRole = null;
     public array $urlManagerRules = [];
     public string $webControllerNamespace = 'JCIT\\oauth2\\controllers';
 

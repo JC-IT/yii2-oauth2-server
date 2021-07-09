@@ -5,17 +5,19 @@ namespace JCIT\oauth2\bridges;
 
 use JCIT\oauth2\models\activeRecord\Client as ActiveRecordClient;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
+use yii\base\Security;
 
 class ClientRepository implements ClientRepositoryInterface
 {
     public function __construct(
         protected \JCIT\oauth2\repositories\ClientRepository $clientRepository,
+        protected Security $security,
     ) {
     }
 
     public function getClientEntity($clientIdentifier): ?Client
     {
-        $client = $this->clientRepository->fetchActive($clientIdentifier);
+        $client = $this->clientRepository->fetchActiveByIdentifier($clientIdentifier);
 
         if (!$client) {
             return null;
@@ -31,7 +33,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function validateClient($clientIdentifier, $clientSecret, $grantType): bool
     {
-        $client = $this->clientRepository->fetchActive($clientIdentifier);
+        $client = $this->clientRepository->fetchActiveByIdentifier($clientIdentifier);
 
         if (!$client || !$this->handlesGrant($client, $grantType)) {
             return false;
@@ -47,6 +49,6 @@ class ClientRepository implements ClientRepositoryInterface
 
     protected function verifySecret(string $clientSecret, string $storedHash)
     {
-        return password_verify($clientSecret, $storedHash);
+        return $this->security->validatePassword($clientSecret, $storedHash);
     }
 }

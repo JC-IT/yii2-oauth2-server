@@ -45,7 +45,7 @@ class AuthCodeRepository implements AuthCodeRepositoryInterface
         $this->authCodeRepository->create([
             'identifier' => $authCodeEntity->getIdentifier(),
             'userId' => $authCodeEntity->getUserIdentifier(),
-            'clientId' => $this->clientRepository->fetch($authCodeEntity->getClient()->getIdentifier())->id,
+            'clientId' => $this->clientRepository->fetchByIdentifier($authCodeEntity->getClient()->getIdentifier())->id,
             'scopes' => $this->scopesToArray($authCodeEntity->getScopes()),
             'expiresAt' => $authCodeEntity->getExpiryDateTime()->format(DateTimeImmutable::ATOM),
         ]);

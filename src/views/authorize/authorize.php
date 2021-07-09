@@ -19,7 +19,7 @@ $this->title = \Yii::t('JCIT.oauth2', 'Authorize {client}', ['client' => $model-
 echo Html::tag('h1', $this->title);
 
 $form = ActiveForm::begin([
-    'layout' => 'horizontal',
+    'layout' => ActiveForm::LAYOUT_HORIZONTAL,
     'method' => 'post',
 ]);
 
