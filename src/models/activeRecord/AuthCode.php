@@ -86,7 +86,7 @@ class AuthCode extends ActiveRecord
             [['scopes'], DefaultValueValidator::class, 'value' => []],
             [['scopes'], EachValidator::class, 'rule' => [RangeValidator::class, 'range' => array_keys($this->scopeOptions())]],
             [['!clientId'], ExistValidator::class, 'targetRelation' => 'client'],
-            [['!userId'], ExistValidator::class, 'targetRelation' => 'user'],
+            [['!userId'], ExistValidator::class, 'targetRelation' => 'user', 'forceMasterDb' => false],
         ];
     }
 

@@ -99,19 +99,19 @@ class Module extends \yii\base\Module implements BootstrapInterface
             $app->getUrlManager()
                 ->addRules(ArrayHelper::merge(
                     (new GroupUrlRule([
-                    'ruleConfig' => [
-                        'class' => UrlRule::class,
-                        'pluralize' => false,
-                        'only' => ['create', 'options']
-                    ],
-                    'rules' => ArrayHelper::merge([
-                        ['controller' => [
-                            $this->uniqueId . '/token',
-                            $this->uniqueId . '/access-token' => $this->uniqueId . '/token'
-                        ]],
-                    ], $this->urlManagerRules)
+                        'ruleConfig' => [
+                            'class' => UrlRule::class,
+                            'pluralize' => false,
+                            'only' => ['create', 'options']
+                        ],
+                        'rules' => ArrayHelper::merge([
+                            ['controller' => [
+                                $this->uniqueId . '/token',
+                                $this->uniqueId . '/access-token' => $this->uniqueId . '/token'
+                            ]],
+                        ], $this->urlManagerRules)
                     ]))->rules,
-                ['GET,POST ' . $this->uniqueId . '/authorize' => $this->uniqueId . '/authorize/authorize']
+                    ['GET,POST ' . $this->uniqueId . '/authorize' => $this->uniqueId . '/authorize/authorize']
                 ), true)
             ;
         }
@@ -130,8 +130,8 @@ class Module extends \yii\base\Module implements BootstrapInterface
 
     protected function createEncryptionKey(): string|Key
     {
-        $key = file_get_contents($this->keyPath . DIRECTORY_SEPARATOR . 'oauth2-encryption.key');
-        return $this->encryptionKey ?? Key::loadFromAsciiSafeString($key);
+        $key = $this->encryptionKey ?? file_get_contents($this->keyPath . DIRECTORY_SEPARATOR . 'oauth2-encryption.key');
+        return Key::loadFromAsciiSafeString($key);
     }
 
     protected function createPrivateCryptKey(): CryptKey
@@ -193,7 +193,11 @@ class Module extends \yii\base\Module implements BootstrapInterface
         $this->refreshTokenRepository = Instance::ensure($this->refreshTokenRepository, RefreshTokenRepositoryInterface::class);
         $this->userRepository = Instance::ensure($this->userRepository, UserRepositoryInterface::class);
 
-        $this->keyPath = !empty($this->keyPath) ? \Yii::getAlias(rtrim($this->keyPath, DIRECTORY_SEPARATOR)) : $this->keyPath;
+        if (isset($this->keyPath)) {
+            $this->keyPath = \Yii::getAlias(rtrim($this->keyPath, DIRECTORY_SEPARATOR));
+        } elseif (!isset($this->encryptionKey, $this->privateKey, $this->publicKey)) {
+            throw new InvalidConfigException('Either keyPath or encryptionKey, privateKey and publicKey must be set.');
+        }
 
         /** Test if interval configuration is correct */
         $this->accessTokensExpireIn = $this->accessTokensExpireIn instanceof DateInterval ? $this->accessTokensExpireIn : new DateInterval($this->accessTokensExpireIn);

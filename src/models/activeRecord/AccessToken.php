@@ -88,7 +88,7 @@ class AccessToken extends ActiveRecord
             [['scopes'], EachValidator::class, 'rule' => [RangeValidator::class, 'range' => array_keys($this->scopeOptions())]],
             [['name'], StringValidator::class],
             [['!clientId'], ExistValidator::class, 'targetRelation' => 'client'],
-            [['!userId'], ExistValidator::class, 'targetRelation' => 'user'],
+            [['!userId'], ExistValidator::class, 'targetRelation' => 'user', 'forceMasterDb' => false],
         ];
     }
 
