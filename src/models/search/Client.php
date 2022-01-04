@@ -10,7 +10,7 @@ use yii\validators\StringValidator;
 
 class Client extends ActiveSearch
 {
-    protected $baseModelClass = ActiveRecordClient::class;
+    protected string $baseModelClass = ActiveRecordClient::class;
 
     public string|null $name = null;
 

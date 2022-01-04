@@ -53,8 +53,6 @@ class Module extends \yii\base\Module implements BootstrapInterface
     /**
      * Either the keys must be configured or keyPath where oauth2-public.key, oauth2-private.key
      * and oauth2-encryption.key must exist
-     *
-     * @var string
      */
     public string $encryptionKey;
     public string $publicKey;
@@ -64,16 +62,12 @@ class Module extends \yii\base\Module implements BootstrapInterface
     /**
      * Interval when tokens expire, use interval notation
      * https://www.php.net/manual/en/dateinterval.construct.php
-     *
-     * @var string
      */
     public string|DateInterval $accessTokensExpireIn = 'PT6H';
     public string|DateInterval $refreshTokensExpireIn = 'P30D';
 
     /**
      * Map of 'identifier' => 'description'
-     *
-     * @var array
      */
     public array $scopes = [];
 

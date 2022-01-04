@@ -15,9 +15,6 @@ use yii\validators\StringValidator;
 use yii\validators\UniqueValidator;
 
 /**
- * Class RefreshToken
- * @package JCIT\oauth2\models\activeRecord
- *
  * @property int $id [int]
  * @property string $identifier [varchar(100)]
  * @property int $accessTokenId [int]

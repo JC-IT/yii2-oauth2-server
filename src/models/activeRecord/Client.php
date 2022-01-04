@@ -20,9 +20,6 @@ use yii\validators\UniqueValidator;
 use yii\validators\UrlValidator;
 
 /**
- * Class Client
- * @package JCIT\oauth2\models\activeRecord
- *
  * @property int $id [int]
  * @property string $identifier [varchar(100)]
  * @property string $name [varchar(255)]
