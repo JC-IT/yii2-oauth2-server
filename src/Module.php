@@ -106,7 +106,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
                         ], $this->urlManagerRules)
                     ]))->rules,
                     ['GET,POST ' . $this->uniqueId . '/authorize' => $this->uniqueId . '/authorize/authorize']
-                ), true)
+                ), false)
             ;
         }
     }
