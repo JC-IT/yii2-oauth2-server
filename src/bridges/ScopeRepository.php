@@ -34,10 +34,11 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     public function finalizeScopes(
         array $scopes,
-        $grantType,
+        string $grantType,
         ClientEntityInterface $clientEntity,
-        $userIdentifier = null
-    ) {
+        string|null $userIdentifier = null,
+        ?string $authCodeId = null
+    ): array {
         $client = $this->clientRepository->fetchByIdentifier($clientEntity->getIdentifier());
         $module = $this->getModule();
         $result = [];

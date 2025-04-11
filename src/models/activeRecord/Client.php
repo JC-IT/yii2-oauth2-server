@@ -97,6 +97,7 @@ class Client extends ActiveRecord
         return [
             'authorization_code' => \Yii::t('JCIT.oauth2', 'Authorization code'),
             'client_credentials' => \Yii::t('JCIT.oauth2', 'Client credentials'),
+            'device_code' => \Yii::t('JCIT.oauth2', 'Device code'),
             'implicit' => \Yii::t('JCIT.oauth2', 'Implicit'),
             'password' => \Yii::t('JCIT.oauth2', 'Password'),
             'refresh_token' => \Yii::t('JCIT.oauth2', 'Refresh token'),

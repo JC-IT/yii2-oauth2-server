@@ -32,7 +32,7 @@ class AuthCodeRepository implements AuthCodeRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function isAuthCodeRevoked($codeId): bool
+    public function isAuthCodeRevoked(string $codeId): bool
     {
         return $this->authCodeRepository->isRevoked($codeId);
     }
@@ -60,7 +60,7 @@ class AuthCodeRepository implements AuthCodeRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function revokeAuthCode($codeId)
+    public function revokeAuthCode(string $codeId): void
     {
         $this->authCodeRepository->revoke($codeId);
     }
